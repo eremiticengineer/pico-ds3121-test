@@ -1,0 +1,53 @@
+cmake_minimum_required(VERSION 3.13)
+
+set(PROJECT ds3231test)
+
+set(PICO_BOARD pico2 CACHE STRING "Board type")
+
+include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
+
+project(${PROJECT} C CXX ASM)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 23)
+
+pico_sdk_init()
+
+message(STATUS ">>>>>>>>>>>>>>>>>>>>> PICO_PLATFORM=${PICO_PLATFORM}")
+
+set(FREERTOS_KERNEL_PATH
+    ${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel
+)
+
+include(
+    ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake
+)
+
+add_executable(${PROJECT}
+  src/ds3231test.cpp
+  src/DS3231/DS3231.h
+  src/DS3231/DS3231.cpp
+)
+
+# FreeRTOSConfig.h needs to be in the include path
+target_include_directories(${PROJECT} PUBLIC
+  include/
+  src/DS3231
+)
+
+# Linking to FreeRTOS-Kernel-Heap4 means we use a dynamic heap for allocations
+target_link_libraries(${PROJECT}
+  pico_stdlib
+  hardware_i2c
+  FreeRTOS-Kernel-Heap4
+  fmt::fmt-header-only
+)
+
+add_subdirectory(
+    lib/fmt
+)
+
+pico_enable_stdio_usb(${PROJECT} 1)
+pico_enable_stdio_uart(${PROJECT} 1)
+
+pico_add_extra_outputs(${PROJECT})
