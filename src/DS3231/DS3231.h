@@ -10,7 +10,6 @@ class DS3231 {
 public:
     DS3231(i2c_inst_t* i2c, uint8_t address = 0x68);
 
-    void init();
     bool readTime(struct tm& time);
     bool setTime(const struct tm& time);
 

@@ -3,10 +3,6 @@
 DS3231::DS3231(i2c_inst_t* i2c, uint8_t address)
     : _i2c(i2c), _address(address) {}
 
-void DS3231::init() {
-    // Assumes I2C has already been initialized and SDA/SCL pins configured externally.
-}
-
 uint8_t DS3231::bcdToDec(uint8_t val) {
     return ((val >> 4) * 10) + (val & 0x0F);
 }
