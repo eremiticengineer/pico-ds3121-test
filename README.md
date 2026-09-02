@@ -7,7 +7,7 @@ This is a simple project that sets and reads the date/time from a DS3231 RTC.
 Clone the project with FreeRTOS and FreeRTOS-FAT-CLI-for-RPi-Pico submodules:
 
 ```
-git clone --recurse-submodules https://github.com/eremiticengineer/pico-ds3121-test
+git clone --recurse-submodules https://github.com/eremiticengineer/pico-ds3121
 ```
 
 If you cloned without recursing submodules:

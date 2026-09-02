@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(PROJECT ds3231test)
+set(LIBRARY pico-ds3231)
+set(PROJECT pico-ds3231-test)
 
 set(PICO_BOARD pico2 CACHE STRING "Board type")
 
@@ -15,39 +16,57 @@ pico_sdk_init()
 
 message(STATUS ">>>>>>>>>>>>>>>>>>>>> PICO_PLATFORM=${PICO_PLATFORM}")
 
-set(FREERTOS_KERNEL_PATH
-    ${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel
+# ---------------------------------------------------------
+# Library
+# ---------------------------------------------------------
+add_library(${LIBRARY}
+    src/DS3231.cpp
 )
 
-include(
-    ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake
+target_include_directories(${LIBRARY} PUBLIC
+    ${CMAKE_CURRENT_LIST_DIR}/src
 )
 
-add_executable(${PROJECT}
-  src/ds3231test.cpp
-  src/DS3231/DS3231.h
-  src/DS3231/DS3231.cpp
+target_link_libraries(${LIBRARY} PUBLIC
+    pico_stdlib
+    hardware_i2c
 )
 
-# FreeRTOSConfig.h needs to be in the include path
-target_include_directories(${PROJECT} PUBLIC
-  include/
-  src/DS3231
-)
+# ---------------------------------------------------------
+# Standalone test
+# ---------------------------------------------------------
+if(PROJECT_IS_TOP_LEVEL)
+    set(FREERTOS_KERNEL_PATH
+        ${CMAKE_CURRENT_LIST_DIR}/lib/FreeRTOS-Kernel
+    )
 
-# Linking to FreeRTOS-Kernel-Heap4 means we use a dynamic heap for allocations
-target_link_libraries(${PROJECT}
-  pico_stdlib
-  hardware_i2c
-  FreeRTOS-Kernel-Heap4
-  fmt::fmt-header-only
-)
+    include(
+        ${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake
+    )
 
-add_subdirectory(
-    lib/fmt
-)
+    add_executable(${PROJECT}
+        examples/main.cpp
+    )
 
-pico_enable_stdio_usb(${PROJECT} 1)
-pico_enable_stdio_uart(${PROJECT} 1)
+    # PRIVATE = only needed to build this executable
+    # it isn’t part of the public interface of the library
+    target_include_directories(${PROJECT} PRIVATE
+        include/
+    )
 
-pico_add_extra_outputs(${PROJECT})
+    target_link_libraries(${PROJECT}
+        pico_stdlib
+        FreeRTOS-Kernel-Heap4
+        fmt::fmt-header-only
+        ${LIBRARY}
+    )
+
+    add_subdirectory(
+        lib/fmt
+    )
+
+    pico_enable_stdio_usb(${PROJECT} 1)
+    pico_enable_stdio_uart(${PROJECT} 1)
+
+    pico_add_extra_outputs(${PROJECT})
+endif()
