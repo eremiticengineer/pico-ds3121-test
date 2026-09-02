@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
-set(LIBRARY pico-ds3231)
-set(PROJECT pico-ds3231-test)
+set(LIBRARY pico_ds3231)
+set(PROJECT pico_ds3231_test)
 
 set(PICO_BOARD pico2 CACHE STRING "Board type")
 
