@@ -13,7 +13,7 @@
 // Standard Task priority
 #define DS3231_TASK_PRIORITY (tskIDLE_PRIORITY + 2UL)
 
-namespace ds3231_pins {
+namespace ds3231_config {
     inline constexpr i2c_inst_t* I2C_INSTANCE = i2c0;
     inline constexpr uint8_t ADDRESS = 0x68;
     inline constexpr uint SDA = 8;
@@ -77,14 +77,14 @@ void ds3231_task(void* pvParameters) {
 int main(void) {
     stdio_init_all();
 
-    i2c_init(ds3231_pins::I2C_INSTANCE, 100 * 1000);
-    gpio_set_function(ds3231_pins::SDA, GPIO_FUNC_I2C);
-    gpio_set_function(ds3231_pins::SCL, GPIO_FUNC_I2C);
-    gpio_pull_up(ds3231_pins::SDA);
-    gpio_pull_up(ds3231_pins::SCL);
+    i2c_init(ds3231_config::I2C_INSTANCE, 100 * 1000);
+    gpio_set_function(ds3231_config::SDA, GPIO_FUNC_I2C);
+    gpio_set_function(ds3231_config::SCL, GPIO_FUNC_I2C);
+    gpio_pull_up(ds3231_config::SDA);
+    gpio_pull_up(ds3231_config::SCL);
 
     i2c_mutex = xSemaphoreCreateMutex();
-    DS3231 ds3231(ds3231_pins::I2C_INSTANCE, ds3231_pins::ADDRESS);
+    DS3231 ds3231(ds3231_config::I2C_INSTANCE, ds3231_config::ADDRESS);
 
     //xTaskCreate(ds3231_setup_task, "RTC Setup", 1024, (void*)&ds3231, tskIDLE_PRIORITY + 2, nullptr);
     xTaskCreate(ds3231_task, "DS3231 Task", 1024, (void*)&ds3231, DS3231_TASK_PRIORITY, nullptr);
